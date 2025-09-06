@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solar Charger with Temperature</title>
+  <style>
+    body {
+      background: #0a1f2d;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #00ffd5;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: #1b2a3b;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #00ffd566;
+    }
+
+    .battery {
+      height: 40px;
+      background: #333;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .battery-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ffcc, #00bfff);
+      transition: width 0.3s;
+    }
+
+    .info {
+      margin-top: 15px;
+      font-size: 1.1em;
+    }
+
+    .slider-container {
+      margin-top: 30px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #00bfff;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0099cc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔋 Solar Charger with Temperature Effect</h1>
+
+  <div class="container">
+    <div class="battery">
+      <div class="battery-fill" id="batteryFill"></div>
+    </div>
+
+    <div class="info" id="batteryStatus">Battery Level: 0%</div>
+    <div class="info" id="panelStatus">Solar Panel: OFF</div>
+    <div class="info" id="tempStatus">Room Temperature: 25°C</div>
+
+    <div class="slider-container">
+      <label for="tempRange">Adjust Room Temperature:</label>
+      <input type="range" id="tempRange" min="0" max="50" value="25" />
+    </div>
+
+    <button onclick="togglePanel()">Toggle Solar Panel</button>
+  </div>
+
+  <script>
+    let charging = false;
+    let battery = 0;
+    let temperature = 25;
+
+    const batteryFill = document.getElementById("batteryFill");
+    const batteryStatus = document.getElementById("batteryStatus");
+    const panelStatus = document.getElementById("panelStatus");
+    const tempStatus = document.getElementById("tempStatus");
+    const tempRange = document.getElementById("tempRange");
+
+    function updateUI() {
+      battery = Math.min(100, battery); // max 100%
+      batteryFill.style.width = battery + "%";
+      batteryStatus.textContent = `Battery Level: ${battery.toFixed(0)}%`;
+      panelStatus.textContent = `Solar Panel: ${charging ? "ON" : "OFF"}`;
+      tempStatus.textContent = `Room Temperature: ${temperature}°C`;
+    }
+
+    function togglePanel() {
+      charging = !charging;
+      updateUI();
+    }
+
+    tempRange.addEventListener("input", () => {
+      temperature = parseInt(tempRange.value);
+      updateUI();
+    });
+
+    // Charging logic: temperature affects speed
+    setInterval(() => {
+      if (charging && battery < 100) {
+        let chargeRate = getChargeRate(temperature);
+        battery += chargeRate;
+        updateUI();
+      }
+    }, 500); // every 0.5 seconds
+
+    function getChargeRate(temp) {
+      if (temp < 10) return 0.1;
+      if (temp < 20) return 0.3;
+      if (temp < 30) return 0.6;
+      if (temp < 40) return 1.0;
+      return 1.5; // very hot = fast charging
+    }
+
+    updateUI();
+  </script>
+
+</body>
+</html>
